@@ -1,39 +1,42 @@
-window.onload = () => {
+function runRBLX() {
+  const output = document.getElementById("output");
+  const fileInput = document.getElementById("rblxFile");
+
+  if (!window.fengari) {
+    output.textContent = "⚠️ Fengari yüklenmedi, sayfayı yenileyin!";
+    return;
+  }
+
+  if (fileInput.files.length === 0) {
+    output.textContent = "⚠️ Lütfen bir .rblx dosyası seç!";
+    return;
+  }
+
   const lua = fengari.lua;
   const lauxlib = fengari.lauxlib;
   const to_luastring = fengari.to_luastring;
 
-  window.runRBLX = function () {
-    const fileInput = document.getElementById("rblxFile");
-    const output = document.getElementById("output");
+  const reader = new FileReader();
 
-    if (fileInput.files.length === 0) {
-      output.textContent = "⚠️ Lütfen bir .rblx dosyası seç!";
-      return;
-    }
+  reader.onload = function (e) {
+    const luaCode = e.target.result;
 
-    const reader = new FileReader();
+    try {
+      const L = lauxlib.luaL_newstate();
+      lauxlib.luaL_openlibs(L);
 
-    reader.onload = function (e) {
-      const luaCode = e.target.result;
+      const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
 
-      try {
-        const L = lauxlib.luaL_newstate();
-        lauxlib.luaL_openlibs(L);
-
-        const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
-
-        if (status === lua.LUA_OK) {
-          output.textContent = "✅ Kod başarıyla çalıştırıldı!";
-        } else {
-          const err = lua.lua_tojsstring(L, -1);
-          output.textContent = "💥 Lua Hatası: " + err;
-        }
-      } catch (err) {
-        output.textContent = "💥 JS Hatası: " + err.message;
+      if (status === lua.LUA_OK) {
+        output.textContent = "✅ Kod başarıyla çalıştırıldı!";
+      } else {
+        const err = lua.lua_tojsstring(L, -1);
+        output.textContent = "💥 Lua Hatası: " + err;
       }
-    };
-
-    reader.readAsText(fileInput.files[0]);
+    } catch (err) {
+      output.textContent = "💥 JS Hatası: " + err.message;
+    }
   };
-};
+
+  reader.readAsText(fileInput.files[0]);
+}
