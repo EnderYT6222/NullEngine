@@ -1,3 +1,4 @@
+// Fengari modüllerini globalden al
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const to_luastring = fengari.to_luastring;
@@ -17,9 +18,11 @@ function runRBLX() {
     const luaCode = e.target.result;
 
     try {
-      const L = lauxlib.luaL_newstate(); // Yeni Lua VM oluştur
-      lauxlib.luaL_openlibs(L); // Standart kütüphaneleri yükle
+      // Yeni Lua VM oluştur
+      const L = lauxlib.luaL_newstate();
+      lauxlib.luaL_openlibs(L);
 
+      // Lua kodunu çalıştır
       const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
 
       if (status === lua.LUA_OK) {
