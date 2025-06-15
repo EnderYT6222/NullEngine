@@ -38,14 +38,22 @@
 
   <pre id="output">Çıktılar burada görünecek...</pre>
 
-  <script src="https://unpkg.com/fengari-web@0.1.4/dist/fengari-web.js" onload="fengariLoaded()" ></script>
-  <script>
-    function fengariLoaded() {
-      const btn = document.getElementById("runBtn");
-      btn.disabled = false;
-      btn.textContent = "▶️ Çalıştır";
-      btn.onclick = runRBLX;
-    }
+  <!-- Fengari CDN, defer ile yüklenecek -->
+  <script src="https://unpkg.com/fengari-web@0.1.4/dist/fengari-web.js" defer></script>
+
+  <script defer>
+    // Fengari yüklendikten sonra butonu aktif et
+    window.addEventListener('load', () => {
+      const fengariScript = document.querySelector('script[src*="fengari-web.js"]');
+      if (fengariScript) {
+        fengariScript.addEventListener('load', () => {
+          const btn = document.getElementById("runBtn");
+          btn.disabled = false;
+          btn.textContent = "▶️ Çalıştır";
+          btn.onclick = runRBLX;
+        });
+      }
+    });
 
     function runRBLX() {
       const output = document.getElementById("output");
