@@ -1,3 +1,7 @@
+const lua = fengari.lua;
+const lauxlib = fengari.lauxlib;
+const to_luastring = fengari.to_luastring;
+
 function runRBLX() {
   const fileInput = document.getElementById("rblxFile");
   const output = document.getElementById("output");
@@ -13,11 +17,19 @@ function runRBLX() {
     const luaCode = e.target.result;
 
     try {
-      const luaFn = fengari.load(luaCode);
-      fengari.lua_call(luaFn, 0); // çalıştır
-      output.textContent = "✅ Kod başarıyla çalıştırıldı!";
+      const L = lauxlib.luaL_newstate(); // Yeni Lua VM oluştur
+      lauxlib.luaL_openlibs(L); // Standart kütüphaneleri yükle
+
+      const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
+
+      if (status === lua.LUA_OK) {
+        output.textContent = "✅ Kod başarıyla çalıştırıldı!";
+      } else {
+        const err = lua.lua_tojsstring(L, -1);
+        output.textContent = "💥 Lua Hatası: " + err;
+      }
     } catch (err) {
-      output.textContent = "💥 Hata: " + err.message;
+      output.textContent = "💥 JS Hatası: " + err.message;
     }
   };
 
