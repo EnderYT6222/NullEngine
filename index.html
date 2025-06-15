@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>RBLX Engine - EnderNull Edition</title>
-  <script src="fengari-web.js"></script> <!-- ROOT'a koyduğun fengari dosyası -->
+  <meta charset="UTF-8" />
+  <title>EnderNull RBLX Engine</title>
+  <script src="fengari-web.js"></script> <!-- Fengari burda -->
   <style>
     body {
       background-color: #0d1117;
@@ -27,17 +27,18 @@
       border: 1px solid #30363d;
       border-radius: 10px;
       white-space: pre-wrap;
+      min-height: 150px;
     }
   </style>
 </head>
 <body>
   <h1>🎮 EnderNull RBLX Engine</h1>
 
-  <input type="file" id="rblxFile" accept=".rblx">
+  <input type="file" id="rblxFile" accept=".rblx" />
   <button onclick="runRBLX()">▶️ Çalıştır</button>
 
   <pre id="output">Çıktılar burada görünecek...</pre>
 
-  <script src="rblx-loader.js"></script>
+  <script src="rblx-loader.js"></script> <!-- rblx loader sonradan -->
 </body>
 </html>
