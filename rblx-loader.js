@@ -1,42 +1,95 @@
-function runRBLX() {
-  const output = document.getElementById("output");
-  const fileInput = document.getElementById("rblxFile");
-
-  if (!window.fengari) {
-    output.textContent = "⚠️ Fengari yüklenmedi, sayfayı yenileyin!";
-    return;
-  }
-
-  if (fileInput.files.length === 0) {
-    output.textContent = "⚠️ Lütfen bir .rblx dosyası seç!";
-    return;
-  }
-
-  const lua = fengari.lua;
-  const lauxlib = fengari.lauxlib;
-  const to_luastring = fengari.to_luastring;
-
-  const reader = new FileReader();
-
-  reader.onload = function (e) {
-    const luaCode = e.target.result;
-
-    try {
-      const L = lauxlib.luaL_newstate();
-      lauxlib.luaL_openlibs(L);
-
-      const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
-
-      if (status === lua.LUA_OK) {
-        output.textContent = "✅ Kod başarıyla çalıştırıldı!";
-      } else {
-        const err = lua.lua_tojsstring(L, -1);
-        output.textContent = "💥 Lua Hatası: " + err;
-      }
-    } catch (err) {
-      output.textContent = "💥 JS Hatası: " + err.message;
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>EnderNull RBLX Engine</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px;
     }
-  };
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #output {
+      margin-top: 20px;
+      width: 80%;
+      background: #161b22;
+      padding: 15px;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      min-height: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 EnderNull RBLX Engine</h1>
 
-  reader.readAsText(fileInput.files[0]);
-}
+  <input type="file" id="rblxFile" accept=".rblx" />
+  <button id="runBtn" disabled>🔄 Fengari Yükleniyor...</button>
+
+  <pre id="output">Çıktılar burada görünecek...</pre>
+
+  <script src="https://unpkg.com/fengari-web@0.1.4/dist/fengari-web.js" defer></script>
+
+  <script defer>
+    window.addEventListener('load', () => {
+      const fengariScript = document.querySelector('script[src*="fengari-web.js"]');
+      if (fengariScript) {
+        fengariScript.addEventListener('load', () => {
+          const btn = document.getElementById("runBtn");
+          btn.disabled = false;
+          btn.textContent = "▶️ Çalıştır";
+          btn.onclick = runRBLX;
+        });
+      }
+    });
+
+    function runRBLX() {
+      const output = document.getElementById("output");
+      const fileInput = document.getElementById("rblxFile");
+
+      if (fileInput.files.length === 0) {
+        output.textContent = "⚠️ Lütfen bir .rblx dosyası seç!";
+        return;
+      }
+
+      const lua = fengari.lua;
+      const lauxlib = fengari.lauxlib;
+      const to_luastring = fengari.to_luastring;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const luaCode = e.target.result;
+
+        try {
+          const L = lauxlib.luaL_newstate();
+          lauxlib.luaL_openlibs(L);
+
+          const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
+
+          if (status === lua.LUA_OK) {
+            output.textContent = "✅ Kod başarıyla çalıştırıldı!";
+          } else {
+            const err = lua.lua_tojsstring(L, -1);
+            output.textContent = "💥 Lua Hatası: " + err;
+          }
+        } catch (err) {
+          output.textContent = "💥 JS Hatası: " + err.message;
+        }
+      };
+
+      reader.readAsText(fileInput.files[0]);
+    }
+  </script>
+</body>
+</html>
