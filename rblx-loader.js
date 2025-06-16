@@ -1,50 +1,33 @@
 function runRBLX() {
-  const output = document.getElementById("output");
   const fileInput = document.getElementById("rblxFile");
+  const output = document.getElementById("output");
 
-  if (fileInput.files.length === 0) {
-    output.textContent = "⚠️ Lütfen bir .rblx dosyası seç!";
+  if (!fileInput.files[0]) {
+    output.textContent = "❌ Lütfen bir .rblx dosyası seçin.";
     return;
   }
 
-  const lua = fengari.lua;
-  const lauxlib = fengari.lauxlib;
-  const to_luastring = fengari.to_luastring;
-
   const reader = new FileReader();
 
-  reader.onload = function (e) {
-    const luaCode = e.target.result;
+  reader.onload = function(event) {
+    const luaCode = event.target.result;
 
     try {
-      const L = lauxlib.luaL_newstate();
-      lauxlib.luaL_openlibs(L);
+      const L = fengari.lauxlib.luaL_newstate();
+      fengari.lualib.luaL_openlibs(L);  // ✅ Tüm Lua kütüphaneleri yüklenir
 
-      const status = lauxlib.luaL_dostring(L, to_luastring(luaCode));
+      const status = fengari.lauxlib.luaL_dostring(L, fengari.to_luastring(luaCode));
 
-      if (status === lua.LUA_OK) {
-        output.textContent = "✅ Kod başarıyla çalıştırıldı!";
+      if (status !== fengari.lua.LUA_OK) {
+        const error = fengari.lua.lua_tojsstring(L, -1);
+        output.textContent = "💥 Lua Hatası: " + error;
       } else {
-        const err = lua.lua_tojsstring(L, -1);
-        output.textContent = "💥 Lua Hatası: " + err;
+        output.textContent = "✅ Kod başarıyla çalıştırıldı!";
       }
     } catch (err) {
-      output.textContent = "💥 JS Hatası: " + err.message;
+      output.textContent = "🚨 JS Hatası: " + err.message;
     }
   };
 
   reader.readAsText(fileInput.files[0]);
 }
-
-// Fengari yüklendiğinde butonu aktif et
-window.addEventListener('load', () => {
-  const fengariScript = document.querySelector('script[src*="fengari-web.js"]');
-  if (fengariScript) {
-    fengariScript.addEventListener('load', () => {
-      const btn = document.getElementById("runBtn");
-      btn.disabled = false;
-      btn.textContent = "▶️ Çalıştır";
-      btn.onclick = runRBLX;
-    });
-  }
-});
